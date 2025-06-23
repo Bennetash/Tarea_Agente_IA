@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente de IA Conversacional</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="sidebar-header">
+                    <h4><i class="fas fa-robot"></i> Agente IA</h4>
+                    <p class="text-muted">Asistente Organizacional</p>
+                </div>
+                
+                <div class="sidebar-menu">
+                    <div class="menu-item active" data-section="chat">
+                        <i class="fas fa-comments"></i> Chat
+                    </div>
+                    <div class="menu-item" data-section="knowledge">
+                        <i class="fas fa-database"></i> Base de Conocimiento
+                    </div>
+                    <div class="menu-item" data-section="analytics">
+                        <i class="fas fa-chart-bar"></i> Análisis
+                    </div>
+                    <div class="menu-item" data-section="settings">
+                        <i class="fas fa-cog"></i> Configuración
+                    </div>
+                </div>
+                
+                <div class="sidebar-footer">
+                    <div class="status-indicator">
+                        <span class="status-dot" id="status-dot"></span>
+                        <span id="status-text">Conectando...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Chat Section -->
+                <div id="chat-section" class="content-section active">
+                    <div class="chat-header">
+                        <h2><i class="fas fa-comments"></i> Chat con el Agente</h2>
+                        <div class="chat-controls">
+                            <button class="btn btn-outline-secondary btn-sm" id="clear-chat">
+                                <i class="fas fa-trash"></i> Limpiar
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" id="export-chat">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message bot-message">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-text">
+                                        ¡Hola! Soy tu asistente de IA organizacional. Puedo ayudarte con consultas sobre:
+                                        <ul>
+                                            <li>Políticas y procedimientos de RRHH</li>
+                                            <li>Soporte técnico y sistemas</li>
+                                            <li>Procesos operativos</li>
+                                            <li>Información general de la empresa</li>
+                                        </ul>
+                                        ¿En qué puedo ayudarte hoy?
+                                    </div>
+                                    <div class="message-time">Ahora</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="user-input" 
+                                       placeholder="Escribe tu pregunta aquí..." maxlength="500">
+                                <button class="btn btn-primary" type="button" id="send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="input-info">
+                                <small class="text-muted">
+                                    <span id="char-count">0</span>/500 caracteres
+                                    <span class="separator">•</span>
+                                    Presiona Enter para enviar
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Knowledge Base Section -->
+                <div id="knowledge-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-database"></i> Base de Conocimiento</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addKnowledgeModal">
+                            <i class="fas fa-plus"></i> Agregar Conocimiento
+                        </button>
+                    </div>
+                    
+                    <div class="knowledge-filters">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="knowledge-search" 
+                                       placeholder="Buscar en la base de conocimiento...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="category-filter">
+                                    <option value="">Todas las categorías</option>
+                                    <option value="Recursos Humanos">Recursos Humanos</option>
+                                    <option value="Tecnología">Tecnología</option>
+                                    <option value="Procesos">Procesos</option>
+                                    <option value="Políticas">Políticas</option>
+                                    <option value="General">General</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary w-100" id="refresh-knowledge">
+                                    <i class="fas fa-sync"></i> Actualizar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="knowledge-grid" id="knowledge-grid">
+                        <!-- Knowledge items will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Analytics Section -->
+                <div id="analytics-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-bar"></i> Análisis y Métricas</h2>
+                        <div class="analytics-controls">
+                            <select class="form-select" id="analytics-period">
+                                <option value="today">Hoy</option>
+                                <option value="week">Esta semana</option>
+                                <option value="month" selected>Este mes</option>
+                                <option value="all">Todo el tiempo</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-grid">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-comments"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 id="total-queries">0</h3>
+                                        <p>Consultas Totales</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 id="success-rate">0%</h3>
+                                        <p>Tasa de Éxito</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 id="avg-response-time">0s</h3>
+                                        <p>Tiempo Promedio</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 id="avg-confidence">0%</h3>
+                                        <p>Confianza Promedio</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <h4>Consultas por Categoría</h4>
+                                    <canvas id="category-chart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <h4>Tendencia de Consultas</h4>
+                                    <canvas id="trend-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Section -->
+                <div id="settings-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-cog"></i> Configuración del Sistema</h2>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="settings-card">
+                                    <h4><i class="fas fa-brain"></i> Configuración del Modelo</h4>
+                                    <div class="mb-3">
+                                        <label class="form-label">Modelo de Lenguaje</label>
+                                        <select class="form-select" id="model-select">
+                                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                            <option value="gpt-4">GPT-4</option>
+                                            <option value="demo">Modo Demo</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Temperatura</label>
+                                        <input type="range" class="form-range" id="temperature-slider" 
+                                               min="0" max="1" step="0.1" value="0.7">
+                                        <small class="text-muted">Actual: <span id="temperature-value">0.7</span></small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Máximo de Tokens</label>
+                                        <input type="number" class="form-control" id="max-tokens" 
+                                               value="500" min="100" max="2000">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="settings-card">
+                                    <h4><i class="fas fa-search"></i> Configuración de Búsqueda</h4>
+                                    <div class="mb-3">
+                                        <label class="form-label">Documentos a Recuperar</label>
+                                        <input type="number" class="form-control" id="top-k" 
+                                               value="3" min="1" max="10">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Umbral de Confianza</label>
+                                        <input type="range" class="form-range" id="confidence-threshold" 
+                                               min="0" max="1" step="0.05" value="0.5">
+                                        <small class="text-muted">Actual: <span id="confidence-value">0.5</span></small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="enable-ml-classification" checked>
+                                            <label class="form-check-label">
+                                                Habilitar Clasificación ML
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="settings-card">
+                                    <h4><i class="fas fa-heartbeat"></i> Estado del Sistema</h4>
+                                    <div class="system-status" id="system-status">
+                                        <!-- System status will be loaded here -->
+                                    </div>
+                                    <button class="btn btn-primary mt-3" id="test-connection">
+                                        <i class="fas fa-plug"></i> Probar Conexión
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Knowledge Modal -->
+    <div class="modal fade" id="addKnowledgeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Conocimiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="knowledge-form">
+                        <div class="mb-3">
+                            <label class="form-label">Título</label>
+                            <input type="text" class="form-control" id="knowledge-title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" id="knowledge-category" required>
+                                <option value="">Seleccionar categoría</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Tecnología">Tecnología</option>
+                                <option value="Procesos">Procesos</option>
+                                <option value="Políticas">Políticas</option>
+                                <option value="General">General</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contenido</label>
+                            <textarea class="form-control" id="knowledge-content" rows="8" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-knowledge">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-robot fa-spin"></i>
+            <p>Procesando...</p>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
+
